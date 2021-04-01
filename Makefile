@@ -121,6 +121,9 @@ initialize_vips:
 		done \
 	done
 
+set_all_irules:
+	./setrules.sh
+
 remove_vips: 
 	i=0; \
 	for thirdoctet in $(subst ",,$(ipthird)); do \
