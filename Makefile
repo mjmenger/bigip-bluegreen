@@ -125,8 +125,9 @@ remove_vips:
 	i=0; \
 	for thirdoctet in $(subst ",,$(ipthird)); do \
 		for fourthoctet in {${ipfourth}}; do \
+			virtualip="${ipprefix}$$thirdoctet.$$fourthoctet"; \
 			response=$$(curl -k --request DELETE \
-			--url https://${bigip1}/mgmt/shared/appsvcs/declare/Test$$i \
+			--url https://${bigip1}/mgmt/shared/appsvcs/declare/Test$$virtualip \
 			-u ${user}:${password} \
 			--header 'content-type: application/json' \
 			--write-out '%{http_code}' --silent --output /dev/null); \
