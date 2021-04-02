@@ -7,7 +7,7 @@ endif
 
 enchilada: enable_bursthandling setup_bluegreen_pools enable_restjavad_additional_memory start_atcbuffer prime_atcbuffer_jobs initialize_vips start_locust
 
-clean: remove_locust remove_atcbuffer remove_vips
+clean: remove_locust remove_atcbuffer remove_tenants
 
 enable_bursthandling:
 	# Enable Burst Handling 
@@ -59,7 +59,7 @@ start_atcbuffer:
 	--env BIGIP_ADMIN_PASSWORD="${password}" \
 	--name "${bigip1}-atcbuffer" \
 	-p 8080:8080 \
-	mmenger/as3buffer:0.3.2
+	mmenger/as3buffer:0.3.4
 	sleep 30
 
 # declarative Jenkins jobs do not have parameters
@@ -111,7 +111,8 @@ initialize_vips:
 			--url https://${bigip1}/mgmt/shared/appsvcs/declare \
 			-u ${user}:${password} \
 			--header 'content-type: application/json' \
-			--data "{\"class\": \"AS3\",\"action\": \"deploy\",\"persist\": true,\"declaration\": {\"class\": \"ADC\",\"schemaVersion\": \"3.25.0\",\"id\": \"id_$$virtualip\",\"label\": \"Test$$virtualip\",\"remark\": \"An HTTP service with percentage based traffic distribution\",\"Test$$virtualip\": {\"class\": \"Tenant\",\"App\": {\"class\": \"Application\",\"service\": {\"class\": \"Service_L4\",\"virtualAddresses\": [\"$$virtualip\"],\"virtualPort\":  80,\"persistenceMethods\": [],\"profileL4\": {\"bigip\":\"/Common/fastL4\"},\"snat\":\"auto\",\"pool\": {\"bigip\":\"/Common/Shared/blue\"}}}}}}" --write-out '%{http_code}' --silent --output /dev/null); \
+			--data "{\"class\": \"AS3\",\"action\": \"deploy\",\"persist\": true,\"declaration\": {\"class\": \"ADC\",\"schemaVersion\": \"3.25.0\",\"id\": \"id_$$virtualip\",\"label\": \"Test$$virtualip\",\"remark\": \"An HTTP service with percentage based traffic distribution\",\"Test$$virtualip\": {\"class\": \"Tenant\",\"App\": {\"class\": \"Application\",\"service\": {\"class\": \"Service_L4\",\"virtualAddresses\": [\"$$virtualip\"],\"virtualPort\":  80,\"persistenceMethods\": [],\"profileL4\": {\"bigip\":\"/Common/fastL4\"},\"snat\":\"auto\",\"pool\": {\"bigip\":\"/Common/Shared/blue\"}}}}}}" \
+			--write-out '%{http_code}'); \
 			echo $$response; \
 			if [[ $$response -eq 200 ]]; then \
 				echo "VIP_INFO.append((\"$$virtualip\",\"Test$$virtualip\",\"App\"))" >> viparray.py; \
@@ -122,9 +123,15 @@ initialize_vips:
 	done
 
 set_all_irules:
-	./setrules.sh
+	./setrulesbuffered.sh
 
-remove_vips: 
+create_all_irules:
+	./createrulesbuffered.sh
+
+unset_all_irules:
+	./unsetrulesbuffered.sh
+
+remove_tenants: 
 	i=0; \
 	for thirdoctet in $(subst ",,$(ipthird)); do \
 		for fourthoctet in {${ipfourth}}; do \
