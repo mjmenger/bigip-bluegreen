@@ -154,3 +154,7 @@ sample_dotenv:
 	echo ipprefix=10.210. >> .env.example; \
 	echo ipfourth=9..11 >> .env.example; \
 	echo ipthird="101 102 103" >> .env.example; \
+	echo bufferuser=admin >> .env.example; \
+	echo bufferpassword=password >> .env.example; \
+	echo bufferhost=dockerhostaddress >> .env.example; \
+	echo bufferport=8080 >> .env.example; \
