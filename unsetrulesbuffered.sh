@@ -15,7 +15,7 @@ do
         rulename="/${tenant}/App/${tenant}_bluegreen_irule"
         rulecontent="when CLIENT_ACCEPTED {\nset distribution [class match -value \\\"distribution\\\" equals bluegreen_datagroup]\nset blue_pool [class match -value \\\"blue_pool\\\" equals bluegreen_datagroup]\nset green_pool [class match -value \\\"green_pool\\\" equals bluegreen_datagroup]\nset rand [expr { rand() }]\nif { \$rand < \$distribution } {pool \$blue_pool} else {pool \$green_pool}}"
 
-        echo "assign iRule to virtual server"
+        echo "unassign iRule to virtual server"
         curl -k --request POST \
         -u "$bufferuser:$bufferpassword" \
         --url http://$bufferhost:$bufferport/job/icrestbuffer/buildWithParameters \
