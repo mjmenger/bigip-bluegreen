@@ -86,8 +86,8 @@ start_locust:
 	docker run -d --env BIGIP_USER=admin \
 	--env BIGIP_PASS=password \
 	--env BIGIP_MGMT_URI="should/not/be/required" \
-	--env BLUEGREEN_STEP_WAIT_MIN=30 \
-	--env BLUEGREEN_STEP_WAIT=60 \
+	--env BLUEGREEN_STEP_WAIT_MIN=${locust_min_wait} \
+	--env BLUEGREEN_STEP_WAIT=${locust_max_wait} \
 	-p 8089:8089 \
 	-v $$PWD:/mnt/locust \
 	--name "${bigip1}-locust" \
