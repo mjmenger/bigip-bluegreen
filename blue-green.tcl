@@ -1,10 +1,11 @@
+# This iRule will send a percentage of traffic to the green pool
+# Requirements:
+#  - a data group with the name bluegreen_datagroup 
+
 when CLIENT_ACCEPTED {
+    set rand [expr [TCP::client_port] % 100]]
     set distribution [class match -value \"distribution\" equals bluegreen_datagroup]
-    set blue_pool [class match -value \"blue_pool\" equals bluegreen_datagroup]
-    set green_pool [class match -value \"green_pool\" equals bluegreen_datagroup]
-    set rand [expr { rand() }]
-    if { $rand < $distribution } 
-        {pool $blue_pool} 
-    else 
-        {pool $green_pool}
+    if { $rand > $distribution } 
+        set green_pool [class match -value \"green_pool\" equals bluegreen_datagroup]
+        {pool $green_pool} 
 }
