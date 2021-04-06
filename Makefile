@@ -159,3 +159,7 @@ sample_dotenv:
 	echo bufferpassword=password >> .env.example; \
 	echo bufferhost=dockerhostaddress >> .env.example; \
 	echo bufferport=8080 >> .env.example; \
+	echo locust_min_wait=30 >> .env.example; \
+	echo locust_max_wait=60 >> .env.example; \
+	echo bluepool=/Common/Shared/blue_pool >> .env.example; \
+	echo greenpool=/Common/Shared/green_pool >> .env.example; \
