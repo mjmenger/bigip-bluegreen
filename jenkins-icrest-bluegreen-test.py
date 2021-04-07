@@ -6,7 +6,7 @@ import logging
 from viparray import *
 
 TEMPLATE_FILE = "bluegreenstatic.json.j2"
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 class BlueGreenTasks(SequentialTaskSet):
     as3buffer_path = "/job/as3buffer/buildWithParameters"
     icrestbuffer_path = "/job/icrestbuffer/buildWithParameters"
@@ -35,7 +35,7 @@ class BlueGreenTasks(SequentialTaskSet):
 
     @task
     def set_blue100_green000_off_blue(self):
-        as3_payload = self.template.render(partition = self.tenant_name, application = self.app_name, virtualPort = 80, virtualAddress = self.vip_address, iRuleName = "", distribution = "0.5", enableBGDistribution = False, defaultPool = "/Common/Shared/blue", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
+        as3_payload = self.template.render(partition = self.tenant_name, application = self.app_name, virtualPort = 80, virtualAddress = self.vip_address, iRuleName = "", distribution = "50", enableBGDistribution = False, defaultPool = "/Common/Shared/blue", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
         logging.info(as3_payload)
         r = self.client.post(self.as3buffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]}, name="1_as3_overall_setup_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "AS3_JSON": json.dumps(as3_payload) })
         logging.info(r.content)
@@ -48,19 +48,19 @@ class BlueGreenTasks(SequentialTaskSet):
 
     @task
     def set_blue080_green020_on_blue(self):
-        icrest_payload = self.dgdist_template.render(partition = self.tenant_name, application = self.app_name, distribution = "0.8", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
+        icrest_payload = self.dgdist_template.render(partition = self.tenant_name, application = self.app_name, distribution = "80", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
         logging.info(icrest_payload)
         r = self.client.post(self.icrestbuffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]},  name="3_rest_blue80_distribution_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "ICREST_URI": "/mgmt/tm/ltm/data-group/internal/~"+self.tenant_name+"~"+self.app_name+"~bluegreen_datagroup", "ICREST_JSON": icrest_payload })
 
     @task
     def set_blue020_green080_on_blue(self):
-        icrest_payload = self.dgdist_template.render(partition = self.tenant_name, application = self.app_name, distribution = "0.2", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
+        icrest_payload = self.dgdist_template.render(partition = self.tenant_name, application = self.app_name, distribution = "20", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
         logging.info(icrest_payload)
         r = self.client.post(self.icrestbuffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]},  name="4_rest_blue20_distribution_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "ICREST_URI": "/mgmt/tm/ltm/data-group/internal/~"+self.tenant_name+"~"+self.app_name+"~bluegreen_datagroup", "ICREST_JSON": icrest_payload })
 
     @task
     def set_blue020_green080_on_green(self):
-        icrest_payload = self.dgpool_template.render(partition = self.tenant_name, application = self.app_name, distribution = "0.2", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green", defaultPool = "/Common/Shared/green")
+        icrest_payload = self.dgpool_template.render(partition = self.tenant_name, application = self.app_name, distribution = "20", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green", defaultPool = "/Common/Shared/green")
         logging.info(icrest_payload)
         r = self.client.post(self.icrestbuffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]},  name="5_rest_default_green_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "ICREST_URI": "/mgmt/tm/ltm/virtual/~"+self.tenant_name+"~"+self.app_name+"~service", "ICREST_JSON": icrest_payload })
 

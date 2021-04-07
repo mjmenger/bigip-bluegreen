@@ -8,7 +8,7 @@ for thirdoctet in $ipthird
 do 
     for fourthoctet in $(eval echo "{$ipfourth}") 
     do 
-        virtualip="10.210.$thirdoctet.$fourthoctet" 
+        virtualip="$ipprefix$thirdoctet.$fourthoctet" 
         tenant="Test${virtualip}"
         echo "${virtualip}:${i}"
         rulename="/${tenant}/App/${tenant}_bluegreen_irule"
