@@ -3,6 +3,7 @@ import json
 import jinja2
 import os
 import logging
+import time
 from viparray import *
 
 TEMPLATE_FILE = "bluegreenstatic.json.j2"
@@ -32,13 +33,11 @@ class BlueGreenTasks(SequentialTaskSet):
             r = self.client.get("/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)", name="getcrumb", verify=False, auth=(self.bigip_user,self.bigip_pass))
             logging.info(r.content.split(b':'))
             self.jenkins_crumb = r.content.split(b':')
-
-    @task
-    def set_blue100_green000_off_blue(self):
-        as3_payload = self.template.render(partition = self.tenant_name, application = self.app_name, virtualPort = 80, virtualAddress = self.vip_address, iRuleName = "", distribution = "50", enableBGDistribution = False, defaultPool = "/Common/Shared/blue", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
-        logging.info(as3_payload)
-        r = self.client.post(self.as3buffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]}, name="1_as3_overall_setup_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "AS3_JSON": json.dumps(as3_payload) })
-        logging.info(r.content)
+            as3_payload = self.template.render(partition = self.tenant_name, application = self.app_name, virtualPort = 80, virtualAddress = self.vip_address, iRuleName = "", distribution = "50", enableBGDistribution = False, defaultPool = "/Common/Shared/blue", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
+            logging.info(as3_payload)
+            r = self.client.post(self.as3buffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]}, name="0_as3_overall_setup_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "AS3_JSON": json.dumps(as3_payload) })
+            logging.info(r.content)
+            time.sleep(int(os.getenv('BLUEGREEN_STEP_WAIT_MIN')))
 
     @task
     def set_blue100_green000_on_blue(self):
