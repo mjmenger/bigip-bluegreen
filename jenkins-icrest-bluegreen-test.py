@@ -6,7 +6,7 @@ import logging
 import time
 from viparray import *
 
-TEMPLATE_FILE = "bluegreenstatic.json.j2"
+TEMPLATE_FILE = "vs-post.json.j2"
 logging.basicConfig(level=logging.WARNING)
 class BlueGreenTasks(SequentialTaskSet):
     as3buffer_path = "/job/as3buffer/buildWithParameters"
@@ -19,14 +19,14 @@ class BlueGreenTasks(SequentialTaskSet):
     bigip_pass = os.getenv('BIGIP_PASS')
     task_label = ""
     jenkins_crumb = []
-    templateLoader = jinja2.FileSystemLoader(searchpath="/mnt/locust/")
+    templateLoader = jinja2.FileSystemLoader(searchpath="/mnt/locust/templates")
     templateEnv = jinja2.Environment(loader=templateLoader)
     template = templateEnv.get_template(TEMPLATE_FILE)
-    dgdist_template = templateEnv.get_template('dg-distribution.json.j2')
-    dgpool_template = templateEnv.get_template('dg-pool.json.j2')
-    vsrules_template = templateEnv.get_template('vs-rules.json.j2')
-    bgirule_template = templateEnv.get_template('ruledef.json.j2') 
-    dgdistdef_template = templateEnv.get_template('dgdef.json.j2') 
+    dgdist_template = templateEnv.get_template('datagroup-patch.json.j2')
+    dgpool_template = templateEnv.get_template('vs-pool-patch.json.j2')
+    vsrules_template = templateEnv.get_template('vs-rules-patch.json.j2')
+    bgirule_template = templateEnv.get_template('rule-post.json.j2') 
+    dgdistdef_template = templateEnv.get_template('datagroup-post.json.j2') 
 
     def on_start(self):
         if len(VIP_INFO) > 0:
