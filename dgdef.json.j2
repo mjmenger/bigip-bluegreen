@@ -1,0 +1,10 @@
+{ 
+    "name": "bluegreen_datagroup",  
+    "partition": "{{tenant}}/App", 
+    "type": "string", 
+    "records": [ 
+        { "name": "blue_pool", "data": "{{bluepool}}" }, 
+        { "name": "distribution", "data": "{{distribution}}" }, 
+        { "name": "green_pool", "data": "{{greenpool}}" }
+    ] 
+}

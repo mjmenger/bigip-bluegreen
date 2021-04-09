@@ -25,18 +25,22 @@ class BlueGreenTasks(SequentialTaskSet):
     dgdist_template = templateEnv.get_template('dg-distribution.json.j2')
     dgpool_template = templateEnv.get_template('dg-pool.json.j2')
     vsrules_template = templateEnv.get_template('vs-rules.json.j2')
+    bgirule_template = templateEnv.get_template('ruledef.json.j2') 
+    dgdistdef_template = templateEnv.get_template('dgdef.json.j2') 
 
     def on_start(self):
         if len(VIP_INFO) > 0:
             self.vip_address, self.tenant_name, self.app_name = VIP_INFO.pop()
             logging.info("retrieving crumb")
-            r = self.client.get("/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)", name="getcrumb", verify=False, auth=(self.bigip_user,self.bigip_pass))
+            r = self.client.get("/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)", name="0_getcrumb", verify=False, auth=(self.bigip_user,self.bigip_pass))
             logging.info(r.content.split(b':'))
             self.jenkins_crumb = r.content.split(b':')
-            as3_payload = self.template.render(partition = self.tenant_name, application = self.app_name, virtualPort = 80, virtualAddress = self.vip_address, iRuleName = "", distribution = "50", enableBGDistribution = False, defaultPool = "/Common/Shared/blue", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
-            logging.info(as3_payload)
-            r = self.client.post(self.as3buffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]}, name="0_as3_overall_setup_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "AS3_JSON": json.dumps(as3_payload) })
-            logging.info(r.content)
+            logging.info('creating irule')
+            icrest_payload = self.bgirule_template.render(tenant = self.tenant_name, application = self.app_name, greenpool = "/Common/Shared/green")
+            r = self.client.post(self.icrestbuffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]},  name="0_create_irule_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "ICREST_METHOD": "POST", "ICREST_URI": "/mgmt/tm/ltm/rule/", "ICREST_JSON": icrest_payload })
+            logging.info('creating datagroup')
+            icrest_payload = self.dgdistdef_template.render(tenant = self.tenant_name, application = self.app_name, distribution = "20", bluePool = "/Common/Shared/blue", greenPool = "/Common/Shared/green")
+            r = self.client.post(self.icrestbuffer_path, headers = {self.jenkins_crumb[0] : self.jenkins_crumb[1]},  name="0_create_datagroup_" + self.task_label, verify=False, auth=(self.bigip_user,self.bigip_pass), data={ "ICREST_METHOD": "POST", "ICREST_URI": "/mgmt/tm/ltm/data-group/internal/", "ICREST_JSON": icrest_payload })
             time.sleep(int(os.getenv('BLUEGREEN_STEP_WAIT_MIN')))
 
     @task

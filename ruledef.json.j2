@@ -1,0 +1,4 @@
+{
+    "name":"/{{tenant}}/{{application}}/{{tenant}}_bluegreen_irule",
+    "apiAnonymous":"when CLIENT_ACCEPTED {\nset rand [expr {[TCP::client_port] % 100}]\nset distribution [class match -value \"distribution\" equals bluegreen_datagroup]\nif { $rand > $distribution }\n{pool {{greenpool}}}\n}"
+}
