@@ -12,7 +12,7 @@ do
         tenant="Test${virtualip}"
         echo "${virtualip}:${i}"
         rulename="~${tenant}~App~${tenant}_bluegreen_irule"
-        datagroupname="~${tenant}~bluegreen_datagroup"
+        datagroupname="~${tenant}~App~bluegreen_datagroup"
     
         echo "delete iRule"
         curl -k \
