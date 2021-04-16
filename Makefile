@@ -59,7 +59,7 @@ start_atcbuffer:
 	--env BIGIP_ADMIN_PASSWORD="${password}" \
 	--name "${bigip1}-atcbuffer" \
 	-p 8080:8080 \
-	mmenger/as3buffer:0.3.4
+	mmenger/as3buffer:0.4.0
 	sleep 30
 
 # declarative Jenkins jobs do not have parameters
