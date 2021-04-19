@@ -6,7 +6,6 @@ import logging
 import time
 from viparray import *
 
-TEMPLATE_FILE = "vs-post.json.j2"
 logging.basicConfig(level=logging.WARNING)
 class BlueGreenTasks(SequentialTaskSet):
     as3buffer_path = "/job/as3buffer/buildWithParameters"
@@ -21,7 +20,7 @@ class BlueGreenTasks(SequentialTaskSet):
     jenkins_crumb = []
     templateLoader = jinja2.FileSystemLoader(searchpath="/mnt/locust/templates")
     templateEnv = jinja2.Environment(loader=templateLoader)
-    template = templateEnv.get_template(TEMPLATE_FILE)
+    template = templateEnv.get_template('vs-post.json.j2')
     dgdist_template = templateEnv.get_template('datagroup-patch.json.j2')
     dgpool_template = templateEnv.get_template('vs-pool-patch.json.j2')
     vsrules_template = templateEnv.get_template('vs-rules-patch.json.j2')
