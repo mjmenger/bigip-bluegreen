@@ -5,7 +5,7 @@ ifneq (,$(wildcard ./.env))
 	export
 endif
 
-enchilada: enable_bursthandling setup_bluegreen_pools enable_restjavad_additional_memory start_atcbuffer prime_atcbuffer_jobs initialize_vips start_locust
+enchilada: enable_bursthandling setup_bluegreen_pools enable_restjavad_additional_memory prime_atcbuffer_jobs initialize_vips start_locust
 
 clean: remove_locust remove_atcbuffer remove_tenants
 
@@ -50,7 +50,7 @@ setup_bluegreen_pools:
 	--header 'content-type: application/json' \
 	--data '{"class": "AS3","action": "deploy","persist": true,"declaration": {"class": "ADC","schemaVersion": "3.25.0","id": "id_bluegreen_setup_1234","label": "","remark": "Setup Target Blue and Green Pools","Common": {"class": "Tenant","Shared": {"class": "Application","template": "shared","blue": {"class": "Pool","monitors": ["tcp"],"members": [{"servicePort": 80,"serverAddresses": ["10.211.100.1","10.211.100.2","10.211.100.3","10.211.100.4","10.211.100.5"]}]},"green": {"class": "Pool","monitors": ["tcp"],"members": [{"servicePort": 80,"serverAddresses": ["10.211.100.6","10.211.100.7","10.211.100.8","10.211.100.9","10.211.100.10"]}]}}}}}'
 
-start_atcbuffer:
+start_atcbuffer: remove_atcbuffer
 	docker run -d --env JENKINS_ADMIN_ID="admin" \
 	--env JENKINS_ADMIN_PASSWORD="password" \
 	--env BIGIP_HOST="${bigip1}" \
@@ -68,7 +68,7 @@ start_atcbuffer:
 # subsequent builds
 # wait 15 seconds for priming builds to complete/fail
 # then delete the priming builds
-prime_atcbuffer_jobs: 
+prime_atcbuffer_jobs: start_atcbuffer
 	@echo retrieve jenkins crumb for crss
 	$(eval COOKIEJAR="$(shell mktemp)")
 	$(eval CRUMB=$(shell curl -u "admin:password" --cookie-jar $(COOKIEJAR) "http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,%22:%22,//crumb)"))
@@ -82,8 +82,21 @@ prime_atcbuffer_jobs:
 remove_atcbuffer:
 	docker rm -f -v ${bigip1}-atcbuffer
 
-start_locust: 
+start_locust: remove_locust 
 	docker run -d --env BIGIP_USER=admin \
+	--env BIGIP_PASS=password \
+	--env BIGIP_MGMT_URI="should/not/be/required" \
+	--env BLUEGREEN_STEP_WAIT_MIN=${locust_min_wait} \
+	--env BLUEGREEN_STEP_WAIT=${locust_max_wait} \
+	-p 8089:8089 \
+	-v $$PWD:/mnt/locust \
+	--name "${bigip1}-locust" \
+	locustio/locust \
+	-f /mnt/locust/jenkins-icrest-bluegreen-test.py \
+	--host 'http://localhost:8080'
+
+start_locust_nod: remove_locust
+	docker run --env BIGIP_USER=admin \
 	--env BIGIP_PASS=password \
 	--env BIGIP_MGMT_URI="should/not/be/required" \
 	--env BLUEGREEN_STEP_WAIT_MIN=${locust_min_wait} \
