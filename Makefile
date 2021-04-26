@@ -5,7 +5,7 @@ ifneq (,$(wildcard ./.env))
 	export
 endif
 
-enchilada: enable_bursthandling setup_bluegreen_pools enable_restjavad_additional_memory prime_atcbuffer_jobs initialize_vips start_locust
+enchilada: enable_bursthandling setup_bluegreen_pools enable_restjavad_additional_memory start_atcbuffer prime_atcbuffer_jobs initialize_vips start_locust
 
 clean: remove_locust remove_atcbuffer remove_tenants
 
@@ -80,9 +80,9 @@ prime_atcbuffer_jobs: start_atcbuffer
 	curl -v -X POST  -u "admin:password" --cookie $(COOKIEJAR) -H "$(CRUMB)" http://localhost:8080/job/as3buffer/1/doDelete
 
 remove_atcbuffer:
-	docker rm -f -v ${bigip1}-atcbuffer
+	-docker rm -f -v ${bigip1}-atcbuffer
 
-start_locust: remove_locust 
+start_locust: remove_locust initialize_vips
 	docker run -d --env BIGIP_USER=admin \
 	--env BIGIP_PASS=password \
 	--env BIGIP_MGMT_URI="should/not/be/required" \
@@ -95,7 +95,7 @@ start_locust: remove_locust
 	-f /mnt/locust/jenkins-icrest-bluegreen-test.py \
 	--host 'http://localhost:8080'
 
-start_locust_nod: remove_locust
+start_locust_nod: remove_locust initialize_vips
 	docker run --env BIGIP_USER=admin \
 	--env BIGIP_PASS=password \
 	--env BIGIP_MGMT_URI="should/not/be/required" \
@@ -109,7 +109,7 @@ start_locust_nod: remove_locust
 	--host 'http://localhost:8080'
 
 remove_locust:
-	docker rm -f -v ${bigip1}-locust
+	-docker rm -f -v ${bigip1}-locust
 
 initialize_vips: 
 	# viparray.py will be used as input to the test harness so 
@@ -160,6 +160,7 @@ remove_tenants:
 			sleep 2; \
 		done \
 	done
+	-rm viparray.py
 
 sample_dotenv:
 	echo bigip1=bigipaddress > .env.example; \
