@@ -29,7 +29,7 @@ Content-Type: application/json
 ```
 
 ### Make additional RAM available to restjavad
-Because of the volume and occasional complexity of control plane traffic of this use-case, it is necessary to [provide additional memory to the restjavad process](https://clouddocs.f5.com/products/extensions/f5-appsvcs-extension/latest/userguide/best-practices.html#increase-the-restjavad-memory-allocation).
+Because of the volume and occasional complexity of control plane traffic of this use-case, it is necessary to [provide additional memory to the restjavad process](https://clouddocs.f5.com/products/extensions/f5-appsvcs-extension/latest/userguide/best-practices.html#increase-the-restjavad-memory-allocation). If you already have this value set to a larger value than 1000, do not adjust it downward.
 ```http
 PATCH https://serveraddress/mgmt/tm/sys/db/provision.extramb
 Authorization: Basic admin adminpassword 
@@ -82,15 +82,15 @@ when CLIENT_ACCEPTED {
 ```
 Notice that the distribution percentage (e.g. 50 in this example) and the target pool are statically assigned. One consequence of this approach is that each virtual server will have their own instance of the iRule. The use of functions like rand() and datagroup lookups were removed in pursuit of better system resource utilization at scale.
 
-### Create / Replace the iRule
-This step is performed every time the distribution or the target greenpool change
+### Create the iRule
+This step is performed to create the iRule the first time
 ```http
 POST https://serveraddress/mgmt/tm/ltm/rule
 Authorization: Basic admin adminpassword 
 Content-Type: application/json
 
 {
-    "name":"/{{tenant}}/{{application}}/{{tenant}}_bluegreen_irule",
+    "name":"/{{tenant}}/{{application}}/{{service}}_bluegreen_irule",
     "apiAnonymous":"when CLIENT_ACCEPTED {\nset rand [expr {[TCP::client_port] % 100}]\nif { $rand > {{distribution}} }\n{pool {{greenpool}}}\n}"
 }
 
@@ -104,8 +104,22 @@ Authorization: Basic admin adminpassword
 Content-Type: application/json
 
 {
-    "rules": [{{tenant}}_bluegreen_irule]
+    "rules": [{{service}}_bluegreen_irule]
 }
+```
+
+### Update the distribution or pool
+
+```http
+PATCH https://serveraddress/mgmt/tm/ltm/rule/~{{ tenant }}~{{ application }}~{{ service }}_bluegreen_irule
+Authorization: Basic admin adminpassword 
+Content-Type: application/json
+
+{
+    "apiAnonymous":"when CLIENT_ACCEPTED {\nset rand [expr {[TCP::client_port] % 100}]\nif { $rand > {{distribution}} }\n{pool {{greenpool}}}\n}"
+}
+
+
 ```
 
 ### Update the default pool
