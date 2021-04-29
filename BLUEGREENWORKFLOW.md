@@ -109,7 +109,7 @@ Content-Type: application/json
 ```
 
 ### Update the distribution or pool
-
+When a change to the distribution or the green pool is desired, a new version of the iRule is deployed. 
 ```http
 PATCH https://serveraddress/mgmt/tm/ltm/rule/~{{ tenant }}~{{ application }}~{{ service }}_bluegreen_irule
 Authorization: Basic admin adminpassword 
@@ -130,7 +130,18 @@ Authorization: Basic admin adminpassword
 Content-Type: application/json
 
 {
-    "pool": "/Common/Shared/blue"
+    "pool": "/Common/Shared/green"
 }
 ```
 
+### Disable the iRule
+When the blue-green workflow is complete and the default pool is now the new (green) pool, the iRule is removed from the service.
+```http
+PATCH https://serveraddress/mgmt/tm/ltm/virtual/~{{ tenant }}~{{ application }}~{{ service }}
+Authorization: Basic admin adminpassword 
+Content-Type: application/json
+
+{
+    "rules": []
+}
+```
