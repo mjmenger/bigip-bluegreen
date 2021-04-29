@@ -63,7 +63,7 @@ Content-Type: application/json
 You'll want to wait for the restjavad process to return to operation, likely between 15 and 30 seconds.
 
 ## Buffer Control Plane Traffic
-In testing this use-case, we modeled several between 100 and 500 randomly-arriving agents enabling and adjusting blue-green traffic flow through control plane adjustments. We found that it was necessary to provide an external buffer to address arrival peaks in defense of control plane stability. We created a [simple example of such a buffer](https://github.com/mjmenger/as3buffer) for the purpose of this proof of concept.
+In testing this use-case, we modeled between 100 and 500 randomly-arriving agents enabling and adjusting blue-green traffic flow through control plane adjustments. We found that it was necessary to provide an external buffer to address arrival peaks in defense of control plane stability. We created a [simple example of such a buffer](https://github.com/mjmenger/as3buffer) for the purpose of this proof of concept.
 
 ## The Steps for the Blue-Green workflow
 The following steps take a virtual server through a blue-green workflow.
