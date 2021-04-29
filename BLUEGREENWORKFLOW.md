@@ -4,11 +4,6 @@
 - TMOS 15.1+
 
 
-```sequence {theme="hand"}
-Andrew->China: Says Hello
-Note right of China: thinks about it
-China->Andrew: How are you?
-```
 ## BIG-IP initial configuration
 The following steps could also be performed with F5 [Declarative Onboarding](https://clouddocs.f5.com/products/extensions/f5-declarative-onboarding/latest/) (DO). For now that declaration is left as an exercise for the reader.
 
