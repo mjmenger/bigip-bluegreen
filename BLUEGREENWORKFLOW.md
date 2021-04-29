@@ -1,8 +1,6 @@
 
 ## Prerequisites
-- AS3 3.26 or later [installed](https://clouddocs.f5.com/products/extensions/f5-appsvcs-extension/latest/userguide/installation.html)
-
-
+- iControlREST 
 
 ## BIG-IP initial configuration
 The following steps could also be performed with F5 [Declarative Onboarding](https://clouddocs.f5.com/products/extensions/f5-declarative-onboarding/latest/) (DO). For now that declaration is left as an exercise for the reader.
@@ -136,8 +134,9 @@ Content-Type: application/json
 }
 ```
 
-### Disable the iRule
-When the blue-green workflow is complete and the default pool is now the new (green) pool, the iRule is removed from the service.
+### Disable and Remove the iRule
+When the blue-green workflow is complete and the default pool is now the new (green) pool, the iRule is removed from the service.  
+Note: if there are additional iRules on the service beyond the blue-green iRule, it will be necessary to parse the existing list, remove the blue-green iRule, and PATCH the list without it.
 ```http
 PATCH https://serveraddress/mgmt/tm/ltm/virtual/~{{ tenant }}~{{ application }}~{{ service }}
 Authorization: Basic admin adminpassword 
@@ -146,4 +145,11 @@ Content-Type: application/json
 {
     "rules": []
 }
+```
+ 
+```http
+DELETE https://serveraddress/mgmt/tm/ltm/rule/~{{ tenant }}~{{ application }}~{{ service }}_bluegreen_irule
+Authorization: Basic admin adminpassword 
+Content-Type: application/json
+
 ```
