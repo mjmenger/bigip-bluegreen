@@ -6,11 +6,11 @@ In testing this use-case, we modeled between 100 and 500 randomly-arriving agent
 
 ## The Steps for the Blue-Green workflow
 The following steps take a virtual server through a blue-green workflow.
-- Create the iRule within the target partition
-- Enable the iRule on the target service
-- Adjust the distribution of traffic
-- Adjust the default pool
-- Disable the iRule on the target service
+1. Create the iRule within the target partition
+1. Enable the iRule on the target service
+1. Adjust the distribution of traffic
+1. Adjust the default pool
+1. Disable the iRule on the target service
 
 Because of the resource utilization expectations of the solution, the iRule is very streamlined, and is assumed for use with fastL4 profiles.
 ```tcl
