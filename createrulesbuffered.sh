@@ -31,7 +31,7 @@ do
         --cookie "$COOKIEJAR" \
         -F ICREST_METHOD=POST \
         -F ICREST_URI=/mgmt/tm/ltm/data-group/internal/ \
-        -F 'ICREST_JSON={ "name": "bluegreen_datagroup",  "partition": "'${tenant}'", "type": "string", "records": [ { "name": "blue_pool", "data": "'${bluepool}'" }, { "name": "distribution", "data": "50" }, { "name": "green_pool", "data": "'${greenpool}'" } ] }'
+        -F 'ICREST_JSON={ "name": "bluegreen_datagroup",  "partition": "'${tenant}'/App", "type": "string", "records": [ { "name": "blue_pool", "data": "'${bluepool}'" }, { "name": "distribution", "data": "50" }, { "name": "green_pool", "data": "'${greenpool}'" } ] }'
 
         sleep 1
     done
