@@ -37,7 +37,7 @@ Content-Type: application/json
 ```
 
 ### Enable the iRule
-if there are existing iRules on the service, the existing iRules should be included in the list 
+Note: If there are existing iRules on the service, the existing iRules must be included in the list or they will be disabled on the target virtual server.
 ```http
 PATCH https://serveraddress/mgmt/tm/ltm/virtual/~{{ tenant }}~{{ application }}~{{ service }}
 Authorization: Basic admin adminpassword 
@@ -76,7 +76,7 @@ Content-Type: application/json
 
 ### Disable and Remove the iRule
 When the blue-green workflow is complete and the default pool is now the new (green) pool, the iRule is removed from the service.  
-Note: if there are additional iRules on the service beyond the blue-green iRule, it will be necessary to parse the existing list, remove the blue-green iRule, and PATCH the list without it.
+Note: If there are additional iRules on the service beyond the blue-green iRule, it will be necessary to parse the existing list, remove the blue-green iRule, and PATCH the virtual server with the updated iRule list.
 ```http
 PATCH https://serveraddress/mgmt/tm/ltm/virtual/~{{ tenant }}~{{ application }}~{{ service }}
 Authorization: Basic admin adminpassword 

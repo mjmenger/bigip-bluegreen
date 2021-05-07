@@ -28,7 +28,8 @@ Content-Type: application/json
 ```
 
 ### Make additional RAM available to restjavad
-Because of the volume and occasional complexity of control plane traffic of this use-case, it is necessary to [provide additional memory to the restjavad process](https://clouddocs.f5.com/products/extensions/f5-appsvcs-extension/latest/userguide/best-practices.html#increase-the-restjavad-memory-allocation). If you already have this value set to a larger value than 1000, do not adjust it downward.
+Because of the volume and occasional complexity of control plane traffic of this use-case, it is necessary to [provide additional memory to the restjavad process](https://clouddocs.f5.com/products/extensions/f5-appsvcs-extension/latest/userguide/best-practices.html#increase-the-restjavad-memory-allocation).  
+Note: If you already have this value set to a larger value than 1000, do not adjust it downward.
 ```http
 PATCH https://serveraddress/mgmt/tm/sys/db/provision.extramb
 Authorization: Basic admin adminpassword 
@@ -49,7 +50,7 @@ Content-Type: application/json
 }
 ```
 and finally request a restart of the restjavad process to enable the consequences of the previous two steps.  
-Note: this call will result in a 502 error because we're restarting the backend of the iControlREST endpoint.
+Note: This call will result in a 502 error because we're restarting the backend of the iControlREST endpoint.
 ```http
 POST https://serveraddress/mgmt/tm/sys/service
 Authorization: Basic admin adminpassword 
